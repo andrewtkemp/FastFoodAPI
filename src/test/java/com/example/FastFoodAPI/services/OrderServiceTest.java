@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import javax.transaction.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -23,11 +24,17 @@ import static org.junit.jupiter.api.Assertions.*;
 class OrderServiceTest {
     @Autowired
     OrderService orderService;
+
     @Test
     void createOrder() throws Exception {
         Order newOrder = new Order("Hungry Man Jr", "Burger, double meat, extra pickles, doughnut buns, diet coke");
+        newOrder.setStatus(Status.PENDING);
+        newOrder.setNote("New Note");
+        newOrder.setCreatedAt(LocalDateTime.now());
+        newOrder.setUpdatedAt(LocalDateTime.now());
         Order order = orderService.createOrder(newOrder);
-        assertNotNull(order.getId());
+        Order savedOrder = orderService.getOrderById(order.getId());
+        assertEquals(savedOrder.getNote(), "New Note");
     }
     @Test
     void getAllOrders() throws Exception {

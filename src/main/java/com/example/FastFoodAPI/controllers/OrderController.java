@@ -1,10 +1,14 @@
 package com.example.FastFoodAPI.controllers;
 
 import com.example.FastFoodAPI.entities.Order;
+import com.example.FastFoodAPI.entities.Status;
 import com.example.FastFoodAPI.services.OrderService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.http.HttpResponse;
 import java.util.List;
 
 @RestController
@@ -12,19 +16,31 @@ import java.util.List;
 public class OrderController {
     final OrderService service;
 
+    @Autowired
     public OrderController(OrderService service) {
         this.service = service;
     }
 
     @PostMapping
-    @ResponseStatus(HttpStatus.OK)
-    public Order createOrder(@RequestBody Order order){
-        return service.createOrder(order);
+    public ResponseEntity<Order> createOrder(@RequestBody Order order){
+        return ResponseEntity.ok(service.createOrder(order));
     }
 
-    @GetMapping("/")
-    public List<Order> getAllOrders(){
-        return service.getOrders();
+    @GetMapping
+    public ResponseEntity<List<Order>> getAllOrders(){
+        List<Order> orders = service.getOrders();
+        return ResponseEntity.ok(orders);
+    }
+    @GetMapping("/{id}")
+    public ResponseEntity<Order> getOrderById(@PathVariable Long id){
+        Order order = service.getOrderById(id);
+        return ResponseEntity.ok(order);
+    }
+    @PatchMapping("/{id}")
+    public  ResponseEntity<Order> updateOrder(@PathVariable Long id, @RequestParam Status status){
+        Order order = service.getOrderById(id);
+        order.setStatus(status);
+        return ResponseEntity.ok(order);
     }
 
 }
