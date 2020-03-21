@@ -15,13 +15,7 @@ public class OrderService {
     public OrderService(OrderRepository orderRepository) {
         this.orderRepository = orderRepository;
     }
-    public Order createOrder(String customerName, String description) {
-        Order order = new Order();
-        order.setCustomerName(customerName);
-        order.setDescription(description);
-        order.setStatus(Status.PENDING);
-        order.setCreatedAt(LocalDateTime.now());
-        order.setUpdatedAt(LocalDateTime.now());
+    public Order createOrder(Order order) {
         return orderRepository.save(order);
     }
     public List<Order> getOrders() {

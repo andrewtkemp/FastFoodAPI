@@ -2,7 +2,9 @@ package com.example.FastFoodAPI.services;
 
 import com.example.FastFoodAPI.entities.Order;
 import com.example.FastFoodAPI.entities.Status;
+import com.example.FastFoodAPI.repository.OrderRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -19,13 +21,12 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @Transactional
 class OrderServiceTest {
-
     @Autowired
     OrderService orderService;
-
     @Test
     void createOrder() throws Exception {
-        Order order = orderService.createOrder("Hungry Man Jr", "Burger, double meat, extra pickles, doughnut buns, diet coke");
+        Order newOrder = new Order("Hungry Man Jr", "Burger, double meat, extra pickles, doughnut buns, diet coke");
+        Order order = orderService.createOrder(newOrder);
         assertNotNull(order.getId());
     }
     @Test
@@ -35,20 +36,23 @@ class OrderServiceTest {
     }
     @Test
     void getOrderById() throws Exception {
-        Order order = orderService.createOrder("Hungry Man Jr", "Burger, double meat, extra pickles, doughnut buns, diet coke");
+        Order newOrder = new Order("Hungry Man Jr", "Burger, double meat, extra pickles, doughnut buns, diet coke");
+        Order order = orderService.createOrder(newOrder);
         Order sameOrder = orderService.getOrderById(order.getId());
         assertEquals(order.getId(), sameOrder.getId());
     }
     @Test
     void updateOrderStatus() throws Exception {
-        Order order = orderService.createOrder("Hungry Man Jr", "Burger, double meat, extra pickles, doughnut buns, diet coke");
+        Order newOrder = new Order("Hungry Man Jr", "Burger, double meat, extra pickles, doughnut buns, diet coke");
+        Order order = orderService.createOrder(newOrder);
         orderService.updateStatus(order.getId(), Status.CANCELLED);
         assertEquals(Status.CANCELLED, order.getStatus());
     }
     @Test
     void updateOrdernote() throws Exception {
         String note = "Test Note";
-        Order order = orderService.createOrder("Hungry Man Jr", "Burger, double meat, extra pickles, doughnut buns, diet coke");
+        Order newOrder = new Order("Hungry Man Jr", "Burger, double meat, extra pickles, doughnut buns, diet coke");
+        Order order = orderService.createOrder(newOrder);
         orderService.updateNotes(order.getId(), note);
         assertEquals(note, order.getNote());
     }

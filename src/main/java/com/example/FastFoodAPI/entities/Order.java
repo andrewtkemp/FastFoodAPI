@@ -1,6 +1,9 @@
 package com.example.FastFoodAPI.entities;
 
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
@@ -19,8 +22,10 @@ public class Order {
     @Column(name="note")
     String note;
     @Column(name="created_at")
+    @JsonSerialize(using = ToStringSerializer.class)
     LocalDateTime createdAt;
     @Column(name="updated_at")
+    @JsonSerialize(using = ToStringSerializer.class)
     LocalDateTime updatedAt;
 
     public Order() {}
