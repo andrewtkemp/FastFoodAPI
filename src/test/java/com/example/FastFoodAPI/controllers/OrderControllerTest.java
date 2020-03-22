@@ -1,9 +1,10 @@
 package com.example.FastFoodAPI.controllers;
 
 import com.example.FastFoodAPI.entities.Order;
-import com.example.FastFoodAPI.repository.OrderRepository;
 import com.example.FastFoodAPI.services.OrderService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,18 +12,21 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
+import static org.hamcrest.Matchers.*;
+
+import javax.transaction.Transactional;
+
+import java.util.ArrayList;
 
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
+@Transactional
 @AutoConfigureMockMvc
 class OrderControllerTest {
     @Autowired
@@ -32,37 +36,43 @@ class OrderControllerTest {
     OrderService orderService;
 
     ObjectMapper mapper = new ObjectMapper();
-
+    private Order order;
+    @BeforeEach
+    void setup() throws JsonProcessingException {
+        order = new Order("Andrew Kemp", "Burger Fries and Shake");
+        order.setId(1L);
+    }
     @Test
     void testCreateOrder() throws Exception {
-        Order newOrder = new Order("Hungry Man Jr", "Burger, double meat, extra pickles, doughnut buns, diet coke");
-        newOrder.setId(1L);
-        newOrder.setNote("Test Note");
-        mvc.perform(post("/api/orders")
-                .content(mapper.writeValueAsString(newOrder))
-                .contentType(MediaType.APPLICATION_JSON))
+        String json = mapper.writeValueAsString(order);
+        when(orderService.createOrder(ArgumentMatchers.any(Order.class))).thenReturn(order);
+        mvc.perform(post("/api/orders").content(json).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.customerName").value(newOrder.getCustomerName()))
-                .andExpect((jsonPath("$.createdAt").value(newOrder.getCreatedAt())))
-                .andExpect((jsonPath("$.status").value(newOrder.getStatus())))
-                .andExpect((jsonPath("$.description").value(newOrder.getDescription())))
-                .andExpect((jsonPath("$.lastUpdatedAt").value(newOrder.getUpdatedAt())));
+                .andExpect(jsonPath("$.id").value(order.getId()))
+                .andExpect((jsonPath("$.customerName").value(order.getCustomerName())))
+                .andExpect((jsonPath("$.description").value(order.getDescription())))
+                .andExpect((jsonPath("$.note").value(order.getNote())))
+                .andExpect((jsonPath("$.createdAt").value(order.getCreatedAt())))
+                .andExpect((jsonPath("$.updatedAt").value(order.getUpdatedAt())))
+                .andExpect((jsonPath("$.status").value(order.getStatus())));
 
     }
 
     @Test
     void testGetAllOrders() throws Exception {
-        Order order = new Order("Hungry Man Jr", "Burger, double meat, extra pickles, doughnut buns, diet coke");
-//        when(orderService.getOrders()).thenReturn(new List(order))
+        Order order1 = new Order("Andrew Kemp", "Cheese Plate1");
+        ArrayList<Order> orders = new ArrayList<>();
+        orders.add(order);
+        orders.add(order1);
+        when(orderService.getOrders()).thenReturn(orders);
         mvc.perform(get("/api/orders")
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(orders.size())));
     }
 
     @Test
     void getOrderById() throws Exception {
-        Order order = new Order("Hungry Man Jr", "Burger, double meat, extra pickles, doughnut buns, diet coke");
-        order.setId(1L);
         when(orderService.getOrderById(order.getId())).thenReturn(order);
         mvc.perform(get("/api/orders/"+order.getId())
                 .contentType(MediaType.APPLICATION_JSON))
@@ -71,8 +81,6 @@ class OrderControllerTest {
 
     @Test
     void updateOrder() throws Exception {
-        Order order = new Order("Hungry Man Jr", "Burger, double meat, extra pickles, doughnut buns, diet coke");
-        order.setId(1L);
         when(orderService.getOrderById(order.getId())).thenReturn(order);
         when(orderService.createOrder(order)).thenReturn(order);
         String orderUrl = "/api/orders/"+order.getId();

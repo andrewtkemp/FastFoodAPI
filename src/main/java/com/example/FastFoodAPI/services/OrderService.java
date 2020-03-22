@@ -3,24 +3,31 @@ package com.example.FastFoodAPI.services;
 import com.example.FastFoodAPI.entities.Order;
 import com.example.FastFoodAPI.entities.Status;
 import com.example.FastFoodAPI.repository.OrderRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.ArrayList;
 import java.util.Optional;
 
 @Service
 public class OrderService {
+    @Autowired
     OrderRepository orderRepository;
+
+    public OrderService() {
+    }
     public OrderService(OrderRepository orderRepository) {
         this.orderRepository = orderRepository;
     }
     public Order createOrder(Order order) {
-        Order o = orderRepository.save(order);
-        return o;
+        LocalDateTime localDate = LocalDateTime.now();
+        order.setUpdatedAt(localDate);
+        order.setCreatedAt(localDate);
+        return orderRepository.save(order);
     }
-    public List<Order> getOrders() {
-        return orderRepository.findAll();
+    public ArrayList<Order> getOrders() {
+        return (ArrayList<Order>) orderRepository.findAll();
     }
     public Order getOrderById(Long id) {
         Optional<Order> order = orderRepository.findById(id);

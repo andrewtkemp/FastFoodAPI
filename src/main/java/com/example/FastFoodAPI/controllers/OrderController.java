@@ -4,12 +4,10 @@ import com.example.FastFoodAPI.entities.Order;
 import com.example.FastFoodAPI.entities.Status;
 import com.example.FastFoodAPI.services.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.http.HttpResponse;
-import java.util.List;
+import java.util.ArrayList;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -27,8 +25,8 @@ public class OrderController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Order>> getAllOrders(){
-        List<Order> orders = service.getOrders();
+    public ResponseEntity<ArrayList<Order>> getAllOrders(){
+        ArrayList<Order> orders = service.getOrders();
         return ResponseEntity.ok(orders);
     }
     @GetMapping("/{id}")

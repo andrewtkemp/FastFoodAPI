@@ -28,15 +28,14 @@ public class Order {
     @JsonSerialize(using = ToStringSerializer.class)
     LocalDateTime updatedAt;
 
-    public Order() {}
-
     public Order(String customerName, String description) {
         this.customerName = customerName;
         this.description = description;
-        this.status = Status.PENDING;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
     }
+
+    public Order() {
+    }
+
     public Long getId() {
         return id;
     }
